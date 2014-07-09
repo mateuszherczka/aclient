@@ -1,0 +1,46 @@
+# depslib dependency file v1.0
+1404912154 source:/home/mh/dev/aclient/main.cpp
+	<iostream>
+	<Client.hpp>
+
+1404834617 source:/home/mh/dev/xmltest/include/KukaBuildXMLFrame.hpp
+	<boost/asio.hpp>
+
+1404912050 /home/mh/dev/aclient/include/Client.hpp
+	<iostream>
+	<istream>
+	<ostream>
+	<string>
+	<boost/asio.hpp>
+	<boost/thread.hpp>
+	<KukaBuildXMLFrame.hpp>
+	<KukaParseXMLFrame.hpp>
+
+1404834617 /home/mh/dev/xmltest/include/KukaBuildXMLFrame.hpp
+	<boost/asio.hpp>
+
+1404909276 /home/mh/dev/xmltest/include/KukaParseXMLFrame.hpp
+	<tinyxml2.h>
+
+1404307912 /home/mh/Libraries/tinyXml2/include/tinyxml2.h
+	<ctype.h>
+	<limits.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdarg.h>
+	<cctype>
+	<climits>
+	<cstdio>
+	<cstdlib>
+	<cstring>
+	<cstdarg>
+	<android/log.h>
+	<assert.h>
+
+1404912920 /home/mh/dev/aclient/include/KukaBuildXMLFrame.hpp
+	<boost/asio.hpp>
+
+1404909276 /home/mh/dev/aclient/include/KukaParseXMLFrame.hpp
+	<tinyxml2.h>
+
