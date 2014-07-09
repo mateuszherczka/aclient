@@ -57,8 +57,6 @@ class Client
                 connected = true;
 
                 // spawn
-                //boost::thread read_thread(boost::bind(readMessage, sock));
-                //boost::thread write_thread(boost::bind(writeMessage, sock));
                 boost::thread read_thread(readMessage, sock);
                 boost::thread write_thread(writeMessage, sock);
 
@@ -71,6 +69,7 @@ class Client
             catch (exception &e){
                 cout << "Client connection exception: " << e.what() << endl;
                 socket.close();
+                connected = false;
                 return;
             }
         };
@@ -89,26 +88,48 @@ class Client
         std::string defaultHost = "localhost"; //std::string defaultHost = "127.0.0.1";
         std::string defaultPort = "10001";
 
+        KukaBuildXMLFrame kukaBuildMessage;
+
 
         void readMessage(socket_ptr socket) {
             // TODO: is lock read necessary (probably not)
-            while (*socket.is_open() && connected) {
-                boost::asio::streambuf message; // TODO: streambuf sould not be created here but reused, how?
-                boost::asio::read_until(socket, response, "\r\n");
+            try {
+                while (*socket.is_open() && connected) {
+                    boost::asio::streambuf message; // TODO: streambuf sould not be created here but reused, how?
+                    boost::asio::read_until(socket, response, "</Rob>\r\n");
+                }
             }
-
-
+            catch (exception &e){
+                cout << "Reading exception: " << e.what() << endl;
+                socket.close();
+                connected = false;
+                return;
+            }
         };  // separate thread
 
         void writeMessage(socket_ptr socket) {
             // TODO: is lock write necessary (probably not)
+            int counter = 0;    // just to change message a little
+            try {
+                while (*socket.is_open() && connected) {
+                    // is there something in the write queue?
+                    // if so, write
 
-            while (*socket.is_open() && connected) {
-                // is there something in the write queue?
-                // if so, write
+                    boost::this_thread::sleep( boost::posix_time::seconds(1) );
 
-                boost::this_thread::sleep( boost::posix_time::seconds(1) );
-                // write something every second
+                    // write xml every second
+                    boost::asio::streambuf message;
+                    kukaFrame.build(message,1+counter,2+counter,3+counter,4+counter,5+counter,6+counter);
+                    boost::asio::write(*socket, message);
+
+                    ++counter;
+                }
+            }
+            catch (exception &e){
+                cout << "Writing exception: " << e.what() << endl;
+                socket.close();
+                connected = false;
+                return;
             }
         };     // separate thread
 
@@ -118,3 +139,7 @@ class Client
 };
 
 #endif // CLIENT_H
+
+
+//boost::thread read_thread(boost::bind(readMessage, sock));
+//boost::thread write_thread(boost::bind(writeMessage, sock));
