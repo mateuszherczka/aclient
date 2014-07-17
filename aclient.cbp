@@ -35,14 +35,14 @@
 			<Add option="-fexceptions" />
 			<Add directory="include" />
 			<Add directory="../../Libraries/tinyXml2/include" />
+			<Add directory="../xmltest/include" />
 		</Compiler>
 		<Linker>
 			<Add library="../../Libraries/tinyXml2/lib/libtinyxml2.a" />
 			<Add library="boost_system" />
+			<Add library="boost_thread" />
 		</Linker>
 		<Unit filename="include/Client.hpp" />
-		<Unit filename="include/KukaBuildXMLFrame.hpp" />
-		<Unit filename="include/KukaParseXMLFrame.hpp" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

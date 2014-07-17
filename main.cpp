@@ -7,7 +7,7 @@ using std::endl;
 int main()
 {
     std::string ahost = "localhost"; //std::string defaultHost = "127.0.0.1";
-    std::string aport = "10001";
+    std::string aport = "6008";
 
     Client aclient;
     aclient.connectToServer(ahost, aport);
