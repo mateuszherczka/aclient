@@ -10,8 +10,11 @@
 
 //#include <KukaBuildXMLFrame.hpp>
 //#include <KukaParseXMLFrame.hpp>
-#include <KukaBuildXMLExample.hpp>
-#include <KukaParseXMLExample.hpp>
+//#include <KukaBuildXMLExample.hpp>
+//#include <KukaParseXMLExample.hpp>
+
+#include <KukaSimulatedResponse.hpp>
+#include <ComputerSimulatedCommand.hpp>
 
 using boost::asio::ip::tcp;
 using std::exception;
@@ -20,6 +23,9 @@ using std::cout;
 using std::endl;
 
 typedef boost::shared_ptr<tcp::socket> socket_ptr;
+
+typedef std::vector<int> info_vec;
+typedef std::vector<double> frame_vec;
 
 class Client
 {
@@ -40,8 +46,6 @@ class Client
         void connectToServer() {
             connectToServer(defaultHost,defaultPort);
         }
-
-
 
         /*
         Specify server and port.
@@ -70,10 +74,10 @@ class Client
                 // spawn
 
                 boost::thread read_thread(&Client::readMessage,this, sock);
-                //boost::thread write_thread(&Client::writeMessage,this, sock);
+                boost::thread write_thread(&Client::writeMessage,this, sock);
 
                 // block until threads return
-                read_thread.join();
+                //read_thread.join();
                 //write_thread.join();
             }
             catch (std::exception &e){
@@ -89,11 +93,17 @@ class Client
             //sock->close();
         };
 
+        bool isConnected() {
+
+            return connected;
+        }
+
     protected:
+
     private:
 
         bool connected = false;
-        bool doParse = false;
+        bool doParse = true;
 
         std::string defaultHost = "localhost"; //std::string defaultHost = "127.0.0.1";
         std::string defaultPort = "6008";
@@ -103,42 +113,39 @@ class Client
         //KukaBuildXMLFrame kukaBuildMessage;
         //KukaParseXMLFrame kukaParseMessage;
 
-        KukaBuildXMLExample kukaBuildMessage;
-        KukaParseXMLExample kukaParseMessage;
+        //KukaBuildXMLExample kukaBuildMessage;
+        //KukaParseXMLExample kukaParseMessage;
+
+        KukaSimulatedResponse kukaBuildMessage;
+        ComputerSimulatedCommand kukaParseMessage;
 
         void readMessage(socket_ptr sock) {
             // TODO: is lock read necessary (probably not)
             cout << "Client read thread started." << endl;
             try {
                 int counter = 0;
+
                 while (sock->is_open() && connected) {
 
                     boost::asio::streambuf message(maxBufferSize); // TODO: streambuf sould not be created here but reused, how?
 
                     try {   // if endtag isnt found before buffer max reached
 
-//                        cout << "---------------------" << endl;
-//                        cout << "Client reading message #" << counter << endl << endl;
-
                         boost::system::error_code error;
                         boost::asio::read_until(*sock, message, endString, error);
 
                         if (error == boost::asio::error::eof) {
                             cout << "Server disconnected." << endl;
+                            cout << "Received " << counter << " messages." << endl;
                             connected = false;
                             return;
                         }
 
-                        if (doParse) {
-                            kukaParseMessage.parse(message);
+                        kukaParseMessage.parse(message);
+
+                        if (counter % 100 == 0) {   // print every nth
                             kukaParseMessage.printValues();
                         }
-
-
-                        cout << streambufToPtr(message);
-
-//                        cout << "Client read message #" << counter << endl;
-//                        cout << "---------------------" << endl;
 
                         ++counter;
                     }
@@ -146,6 +153,7 @@ class Client
                         cout << "Reading (no matching xml endtag): " << e.what() << endl;
                     }   // complain but don't quit
                 }
+
             }
             catch (std::exception &e){
                 cout << "Reading exception: " << e.what() << endl;
@@ -156,19 +164,62 @@ class Client
 
         void writeMessage(socket_ptr sock) {
             // TODO: is lock write necessary (probably not)
-            cout << "Client write thread started." << endl;
+            cout << "Client write thread started, waiting a little." << endl;
+            boost::this_thread::sleep( boost::posix_time::milliseconds(1000) );
+
             int counter = 0;    // just to change message a little
             try {
                 while (sock->is_open() && connected) {
                     // is there something in the write queue?
                     // if so, write
 
-                    boost::this_thread::sleep( boost::posix_time::seconds(2) );
+                    // write every n seconds
+                    boost::this_thread::sleep( boost::posix_time::milliseconds(20) );
 
                     // write xml every second
                     boost::asio::streambuf message;
-                    //kukaBuildMessage.build(message,1+counter,2+counter,3+counter,4+counter,5+counter,6+counter);
-                    kukaBuildMessage.setPosXYZ(counter,counter,counter);
+
+                    int i = counter;
+                    info_vec info = {i,i,i,i,i};
+
+                    double j = counter * 0.001;
+                    frame_vec frame = {j,j,j,j,j,j};
+
+                    kukaBuildMessage.format(message,info,frame);
+
+                    boost::asio::write(*sock, message);
+
+                    ++counter;
+                }
+
+                cout << "Wrote " << counter << " messages." << endl;
+            }
+            catch (std::exception &e){
+                cout << "Writing exception: " << e.what() << endl;
+                closeConnection();
+                return;
+            }
+        };     // separate thread
+
+        /*
+        Gets a pointer to buffer inside streambuf.
+        */
+        const char * streambufToPtr(boost::asio::streambuf &message) {
+            const char* bufPtr=boost::asio::buffer_cast<const char*>(message.data());
+            return bufPtr;
+        }
+
+
+};
+
+#endif // CLIENT_H
+
+
+//boost::thread read_thread(boost::bind(readMessage, sock));
+//boost::thread write_thread(boost::bind(writeMessage, sock));
+
+/*
+kukaBuildMessage.setPosXYZ(counter,counter,counter);
 
                     if (counter % 4 == 2 ) {
                         kukaBuildMessage.buildBrokenFirstHalf(message);
@@ -194,30 +245,4 @@ class Client
                         boost::asio::write(*sock, message);
                         cout << "Client wrote message #" << counter << endl;
                     }
-
-                    ++counter;
-                }
-            }
-            catch (std::exception &e){
-                cout << "Writing exception: " << e.what() << endl;
-                closeConnection();
-                return;
-            }
-        };     // separate thread
-
-        /*
-        Gets a pointer to buffer inside streambuf.
-        */
-        const char * streambufToPtr(boost::asio::streambuf &message) {
-            const char* bufPtr=boost::asio::buffer_cast<const char*>(message.data());
-            return bufPtr;
-        }
-
-
-};
-
-#endif // CLIENT_H
-
-
-//boost::thread read_thread(boost::bind(readMessage, sock));
-//boost::thread write_thread(boost::bind(writeMessage, sock));
+                    */

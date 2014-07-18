@@ -12,6 +12,11 @@ int main()
     Client aclient;
     aclient.connectToServer(ahost, aport);
 
+    while (aclient.isConnected()) {
+
+        boost::this_thread::sleep( boost::posix_time::milliseconds(100) );
+    }
+
     cout << "Client exiting" << endl;
     return 0;
 }

@@ -1,16 +1,16 @@
 # depslib dependency file v1.0
-1405411295 source:/home/mh/dev/aclient/main.cpp
+1405686102 source:/home/mh/dev/aclient/main.cpp
 	<iostream>
 	<Client.hpp>
 
 1404834617 source:/home/mh/dev/xmltest/include/KukaBuildXMLFrame.hpp
 	<boost/asio.hpp>
 
-1405591605 /home/mh/dev/aclient/include/Client.hpp
+1405686853 /home/mh/dev/aclient/include/Client.hpp
 	<boost/asio.hpp>
 	<boost/thread.hpp>
-	<KukaBuildXMLExample.hpp>
-	<KukaParseXMLExample.hpp>
+	<KukaSimulatedResponse.hpp>
+	<ComputerSimulatedCommand.hpp>
 
 1404915073 /home/mh/dev/xmltest/include/KukaBuildXMLFrame.hpp
 	<boost/asio.hpp>
@@ -45,6 +45,17 @@
 	<tinyxml2.h>
 
 1404977676 /home/mh/dev/xmltest/include/KukaParseXMLExample.hpp
+	<boost/lexical_cast.hpp>
+	<boost/asio.hpp>
+	<tinyxml2.h>
+
+1405677107 /home/mh/dev/aclient/include/KukaSimulatedResponse.hpp
+
+1405686144 /home/mh/dev/aclient/include/ComputerSimulatedCommand.hpp
+	<vector>
+	<XMLParser.hpp>
+
+1405685925 /home/mh/dev/aclient/include/XMLParser.hpp
 	<boost/lexical_cast.hpp>
 	<boost/asio.hpp>
 	<tinyxml2.h>
